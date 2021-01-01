@@ -275,6 +275,7 @@ class QrLogin:
 class JdSeckill(object):
     def __init__(self):
         self.spider_session = SpiderSession()
+        # 本地加载cookie信息
         self.spider_session.load_cookies_from_local()
 
         self.qrlogin = QrLogin(self.spider_session)

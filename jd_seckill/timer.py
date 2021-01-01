@@ -5,7 +5,7 @@ import time
 import requests
 import json
 
-from datetime import datetime
+from datetime import timedelta,datetime
 
 from .jd_logger import logger
 from .config import global_config
@@ -14,7 +14,17 @@ from .config import global_config
 class Timer(object):
     def __init__(self, sleep_interval=0.5):
         # '2018-09-28 22:45:50.000'
-        self.buy_time = datetime.strptime(global_config.getRaw('config', 'buy_time'), "%Y-%m-%d %H:%M:%S.%f")
+
+        buy_time = global_config.getRaw('config', 'buy_time')
+        # 当config未配置buy_time属性时，默认用下一次的抢购时间
+        if not buy_time:
+            now = datetime.now();
+            today10clock = now.replace(hour=10, minute=0, second=0, microsecond= 0)
+            tomorrow10clock  = today10clock + timedelta(days = 1)
+            self.buy_time = tomorrow10clock if now > today10clock - timedelta(minutes = 5) else today10clock
+        else:
+            self.buy_time = datetime.strptime(buy_time, "%Y-%m-%d %H:%M:%S.%f")
+
         self.buy_time_ms = int(time.mktime(self.buy_time.timetuple()) * 1000.0 + self.buy_time.microsecond / 1000)
         self.sleep_interval = sleep_interval
 
